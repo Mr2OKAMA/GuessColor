@@ -1,6 +1,7 @@
 import { CONFIG } from '../game/config'
 import { GameSession } from '../game/session'
 import type { Pokemon } from '../game/types'
+import { AudioManager } from './audio'
 
 const COLOR_CSS: Record<string, string> = {
   赤: '#e53935',
@@ -45,6 +46,34 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
   let timer: number | undefined
   let last = 0
   let best = loadBest()
+  const audio = new AudioManager()
+
+  const muteBtn = document.createElement('button')
+  muteBtn.className = 'mute'
+  muteBtn.type = 'button'
+  const renderMute = (): void => {
+    muteBtn.textContent = audio.muted ? '🔇' : '🔊'
+    muteBtn.setAttribute('aria-label', audio.muted ? 'サウンドをオンにする' : 'サウンドをオフにする')
+  }
+  muteBtn.onclick = (e) => {
+    e.stopPropagation()
+    audio.setMuted(!audio.muted)
+    renderMute()
+    audio.sfx('tap')
+  }
+  renderMute()
+  document.body.appendChild(muteBtn)
+
+  // 回答ボタン以外のボタンにタップ音を鳴らす
+  root.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('button')
+    if (btn && btn.type !== 'submit') audio.sfx('tap')
+  })
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) audio.suspend()
+    else if (audio.playingBgm) audio.resume()
+  })
 
   function stop(): void {
     if (timer !== undefined) cancelAnimationFrame(timer)
@@ -53,6 +82,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function renderMenu(): void {
     stop()
+    audio.stopBgm()
     root.innerHTML = `
       <main class="card menu">
         <div class="logo" aria-hidden="true">
@@ -136,6 +166,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function startGame(): void {
     session.start()
+    audio.startBgm()
     renderPlay()
     last = performance.now()
     timer = requestAnimationFrame(loop)
@@ -174,6 +205,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
       const result = session.answer(input.value)
       if (session.phase !== 'playing') return
       showFeedback(result)
+      audio.sfx(result)
       if (result !== 'duplicate') input.value = ''
       if (result === 'correct') updateStats()
       input.focus()
@@ -182,6 +214,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
       session.pass()
       if (session.phase !== 'playing') return
       showFeedback('pass')
+      audio.sfx('pass')
       updateStats()
       input.focus()
     }
@@ -190,6 +223,8 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function renderResult(): void {
     stop()
+    audio.stopBgm()
+    audio.sfx('finish')
     const isNew = session.score > best
     if (isNew) {
       best = session.score
