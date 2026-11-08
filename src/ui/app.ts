@@ -1,5 +1,7 @@
 import { CONFIG } from '../game/config'
+import { backspace, EXTRA_KEYS, KANA_GRID, pressKey } from '../game/kana'
 import { GameSession } from '../game/session'
+import { suggest } from '../game/suggest'
 import type { Pokemon } from '../game/types'
 import { AudioManager } from './audio'
 
@@ -67,7 +69,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
   // 回答ボタン以外のボタンにタップ音を鳴らす
   root.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('button')
-    if (btn && btn.type !== 'submit') audio.sfx('tap')
+    if (btn && btn.type !== 'submit' && !btn.dataset.silent) audio.sfx('tap')
   })
 
   document.addEventListener('visibilitychange', () => {
@@ -149,6 +151,15 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
     document.getElementById('chips')!.innerHTML = chipsHtml(session.question.colors)
   }
 
+  function kanaHtml(): string {
+    const key = (k: string): string =>
+      k
+        ? `<button type="button" class="key" data-key="${k}">${k}</button>`
+        : '<span class="key blank"></span>'
+    const rows = KANA_GRID.map((row) => row.map(key).join('')).join('')
+    return rows + EXTRA_KEYS.map(key).join('')
+  }
+
   function showFeedback(kind: 'correct' | 'wrong' | 'duplicate' | 'pass'): void {
     const text = {
       correct: `正解！ +${CONFIG.correctBonusSec}秒`,
@@ -186,9 +197,12 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <p class="prompt">この色をすべて含むポケモンは？</p>
         <div id="chips" class="chips"></div>
         <form id="form">
-          <input id="answer" autocomplete="off" placeholder="ポケモンの名前" />
+          <input id="answer" autocomplete="off" inputmode="none" placeholder="ポケモンの名前" />
+          <button type="button" id="back" class="key-del" aria-label="1文字消す">⌫</button>
           <button type="submit" class="primary">答える</button>
         </form>
+        <div id="suggest" class="suggest"></div>
+        <div id="kana" class="kana">${kanaHtml()}</div>
         <p id="feedback" class="feedback"></p>
         <div class="actions">
           <button id="pass" class="sub">パス（-${CONFIG.passPenaltySec}秒）</button>
@@ -196,19 +210,50 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         </div>
       </main>`
     const input = document.getElementById('answer') as HTMLInputElement
-    input.focus()
+    // タッチ端末では端末のキーボードを出さず、画面のキーボードを使う
+    const touch = window.matchMedia('(pointer: coarse)').matches
+    if (touch) input.readOnly = true
+    else input.focus()
     updateStats()
     updateTime()
-    ;(document.getElementById('form') as HTMLFormElement).onsubmit = (e) => {
-      e.preventDefault()
-      if (!input.value.trim()) return
-      const result = session.answer(input.value)
+
+    function renderSuggest(): void {
+      const { items, total } = suggest(pokemons, input.value)
+      const more = total > items.length ? `<span class="more">ほか ${total - items.length} 件</span>` : ''
+      document.getElementById('suggest')!.innerHTML =
+        items.map((p) => `<button type="button" data-silent="1" data-name="${p.name}">${p.name}</button>`).join('') + more
+    }
+
+    function submit(text: string): void {
+      if (!text.trim()) return
+      const result = session.answer(text)
       if (session.phase !== 'playing') return
       showFeedback(result)
       audio.sfx(result)
       if (result !== 'duplicate') input.value = ''
       if (result === 'correct') updateStats()
-      input.focus()
+      renderSuggest()
+      if (!touch) input.focus()
+    }
+
+    input.oninput = renderSuggest
+    ;(document.getElementById('form') as HTMLFormElement).onsubmit = (e) => {
+      e.preventDefault()
+      submit(input.value)
+    }
+    document.getElementById('kana')!.onclick = (e) => {
+      const key = (e.target as HTMLElement).closest<HTMLElement>('[data-key]')?.dataset.key
+      if (!key) return
+      input.value = pressKey(input.value, key)
+      renderSuggest()
+    }
+    document.getElementById('back')!.onclick = () => {
+      input.value = backspace(input.value)
+      renderSuggest()
+    }
+    document.getElementById('suggest')!.onclick = (e) => {
+      const name = (e.target as HTMLElement).closest<HTMLElement>('[data-name]')?.dataset.name
+      if (name) submit(name)
     }
     document.getElementById('pass')!.onclick = () => {
       session.pass()
@@ -216,7 +261,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
       showFeedback('pass')
       audio.sfx('pass')
       updateStats()
-      input.focus()
+      if (!touch) input.focus()
     }
     document.getElementById('quit')!.onclick = renderMenu
   }

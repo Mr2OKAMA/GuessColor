@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { backspace, pressKey } from './kana'
 import { normalize } from './normalize'
 import { answersFor, buildQuestionPool } from './question'
 import { GameSession } from './session'
+import { suggest } from './suggest'
 import type { Pokemon } from './types'
 
 const data: Pokemon[] = [
@@ -46,5 +48,51 @@ describe('GameSession', () => {
     s.start()
     s.tick(999)
     expect(s.phase).toBe('finished')
+  })
+})
+
+describe('kana', () => {
+  it('濁点・半濁点・小文字を直前の文字に適用し、再度押すと戻る', () => {
+    expect(pressKey('ピカ', '゛')).toBe('ピガ')
+    expect(pressKey('ピガ', '゛')).toBe('ピカ')
+    expect(pressKey('ハ', '゜')).toBe('パ')
+    expect(pressKey('パ', '゛')).toBe('バ')
+    expect(pressKey('ウ', '゛')).toBe('ヴ')
+    expect(pressKey('ケー', '小')).toBe('ケー')
+    expect(pressKey('チユ', '小')).toBe('チュ')
+    expect(pressKey('チュ', '小')).toBe('チユ')
+    expect(pressKey('ツ', '小')).toBe('ッ')
+    expect(pressKey('ヤ', '小')).toBe('ャ')
+  })
+
+  it('適用できない文字や空文字は変化しない', () => {
+    expect(pressKey('ナ', '゜')).toBe('ナ')
+    expect(pressKey('', '゛')).toBe('')
+    expect(pressKey('ピ', 'カ')).toBe('ピカ')
+  })
+
+  it('1文字削除できる', () => {
+    expect(backspace('ピカ')).toBe('ピ')
+    expect(backspace('')).toBe('')
+  })
+})
+
+describe('suggest', () => {
+  const names: Pokemon[] = [
+    { id: 1, name: 'ピカチュウ', colors: [] },
+    { id: 2, name: 'ピジョン', colors: [] },
+    { id: 3, name: 'ライチュウ', colors: [] },
+  ]
+
+  it('前方一致を先に、部分一致を後ろに返す', () => {
+    expect(suggest(names, 'ぴ').items.map((p) => p.name)).toEqual(['ピカチュウ', 'ピジョン'])
+    expect(suggest(names, 'チュウ').items.map((p) => p.name)).toEqual(['ピカチュウ', 'ライチュウ'])
+  })
+
+  it('入力が空なら候補なし、上限と総数を返す', () => {
+    expect(suggest(names, '').items).toEqual([])
+    const r = suggest(names, 'ピ', 1)
+    expect(r.items).toHaveLength(1)
+    expect(r.total).toBe(2)
   })
 })
