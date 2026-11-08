@@ -21,7 +21,7 @@ npm run build   # ビルド
 
 ## データ
 `src/data/pokemon.json` に `{ id, name, colors[] }` を追加します。色は 赤・青・黄・緑・黒・白・茶・ピンク・紫・灰・オレンジ から選びます。
-現在のデータは動作確認用のサンプルです。
+図鑑番号1〜1025(全世代)を登録済みです。第2世代以降の色は公式画像の配色とPokeAPIの色情報から自動推定したため、気になる箇所は随時修正してください。
 
 ## 公開
 `main` への push で GitHub Pages にデプロイされます（Settings > Pages > Source を GitHub Actions に設定）。
