@@ -239,7 +239,7 @@ input {
 
 .mute {
   position: fixed;
-  top: 12px;
+  bottom: 12px;
   right: 12px;
   width: 44px;
   height: 44px;
@@ -247,4 +247,67 @@ input {
   font-size: 1.3rem;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+}
+
+.suggest {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  align-content: start;
+  min-height: 84px;
+  margin: 10px 0 6px;
+}
+
+.suggest button {
+  min-width: 0;
+  padding: 8px 4px;
+  font-size: 0.95rem;
+  background: #e3f2fd;
+  border-color: #90caf9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggest .more {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.kana {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin: 6px 0 8px;
+}
+
+.key {
+  min-width: 0;
+  padding: 10px 0;
+  font-size: 1.05rem;
+  touch-action: manipulation;
+}
+
+.key.blank {
+  visibility: hidden;
+}
+
+.key-del {
+  padding: 10px 14px;
+}
+
+@media (max-width: 520px) {
+  .play {
+    padding: 16px 12px;
+  }
+
+  .chips {
+    margin: 8px 0 12px;
+  }
+
+  .key {
+    padding: 9px 0;
+    font-size: 1rem;
+  }
 }
