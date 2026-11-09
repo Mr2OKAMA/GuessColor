@@ -97,10 +97,12 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <p class="best">ハイスコア <strong>${best}</strong> 点</p>
         <button id="start" class="primary">スタート</button>
         <button id="how" class="sub">あそびかた</button>
+        <button id="answers" class="sub">答え一覧</button>
         <p class="note">非公式のファンメイド作品です。画像は使用していません。</p>
       </main>`
     document.getElementById('start')!.onclick = startGame
     document.getElementById('how')!.onclick = renderHowTo
+    document.getElementById('answers')!.onclick = renderAnswers
   }
 
   function renderHowTo(): void {
@@ -116,6 +118,19 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
           <li>同じポケモンは1回しか使えません。</li>
         </ol>
         <p class="hint">初期時間は ${CONFIG.initialTimeSec} 秒です。</p>
+        <button id="back" class="primary">もどる</button>
+      </main>`
+    document.getElementById('back')!.onclick = renderMenu
+  }
+
+  function renderAnswers(): void {
+    const rows = pokemons
+      .map((p) => `<li><strong>${p.name}</strong> ${chipsHtml(p.colors)}</li>`)
+      .join('')
+    root.innerHTML = `
+      <main class="card answers">
+        <h2>答え一覧</h2>
+        <ul class="answer-list">${rows}</ul>
         <button id="back" class="primary">もどる</button>
       </main>`
     document.getElementById('back')!.onclick = renderMenu
