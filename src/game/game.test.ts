@@ -119,3 +119,52 @@ describe('色違い', () => {
     expect(pool).not.toContain('白+黄')
   })
 })
+
+describe('出題の色数', () => {
+  const many: Pokemon[] = [
+    { id: 1, name: 'アア', colors: ['赤', '青', '黄'] },
+    { id: 2, name: 'イイ', colors: ['赤', '青', '黄'] },
+    { id: 3, name: 'ウウ', colors: ['赤', '青', '黄'] },
+    { id: 4, name: 'エエ', colors: ['赤', '青', '黄'] },
+    { id: 5, name: 'オオ', colors: ['赤', '青', '黄'] },
+    { id: 6, name: 'カカ', colors: ['赤', '青', '黄'] },
+    { id: 7, name: 'キキ', colors: ['赤', '青', '黄'] },
+    { id: 8, name: 'クク', colors: ['赤', '青', '黄'] },
+    { id: 9, name: 'ケケ', colors: ['赤', '青', '黄'] },
+    { id: 10, name: 'ココ', colors: ['赤', '青', '黄'] },
+    { id: 11, name: 'ササ', colors: ['赤', '青', '黄'] },
+  ]
+
+  it('通常は75%で1色、25%で2色（乱数で切り替わる）', () => {
+    const low = new GameSession(many, () => 0.5)
+    low.start()
+    expect(low.question.colors).toHaveLength(1)
+    const high = new GameSession(many, () => 0.8)
+    high.start()
+    expect(high.question.colors).toHaveLength(2)
+  })
+
+  it('10コンボごとに3色が出て、その次は通常に戻る', () => {
+    const s = new GameSession(many, () => 0)
+    s.start()
+    for (let i = 0; i < 9; i++) {
+      expect(s.question.colors).toHaveLength(1)
+      s.answer(many[i].name)
+    }
+    expect(s.combo).toBe(9)
+    expect(s.question.colors).toHaveLength(1)
+    s.answer(many[9].name)
+    expect(s.combo).toBe(10)
+    expect(s.question.colors).toHaveLength(3)
+    s.answer(many[10].name)
+    expect(s.question.colors).toHaveLength(1)
+  })
+
+  it('パスでコンボが切れると3色は出ない', () => {
+    const s = new GameSession(many, () => 0)
+    s.start()
+    for (let i = 0; i < 9; i++) s.answer(many[i].name)
+    s.pass()
+    expect(s.question.colors).toHaveLength(1)
+  })
+})
