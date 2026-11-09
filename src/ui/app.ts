@@ -19,6 +19,9 @@ const COLOR_CSS: Record<string, string> = {
   オレンジ: '#fb8c00',
 }
 
+// 背景が明るく白文字だと読めない色
+const LIGHT_COLORS = new Set(['白', '黄'])
+
 const BEST_KEY = 'guesscolor.best'
 
 function loadBest(): number {
@@ -39,7 +42,7 @@ function saveBest(score: number): void {
 
 function chipsHtml(colors: string[]): string {
   return colors
-    .map((c) => `<span class="chip" style="background:${COLOR_CSS[c] ?? '#ccc'}">${c}</span>`)
+    .map((c) => `<span class="chip${LIGHT_COLORS.has(c) ? ' light' : ''}" style="background:${COLOR_CSS[c] ?? '#ccc'}">${c}</span>`)
     .join('')
 }
 
@@ -125,7 +128,10 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function renderAnswers(): void {
     const rows = pokemons
-      .map((p) => `<li><strong>${p.name}</strong> ${chipsHtml(p.colors)}</li>`)
+      .map(
+        (p) =>
+          `<li><span class="no">${p.id}</span><span class="name">${p.name}</span><div class="chips">${chipsHtml(p.colors)}</div></li>`,
+      )
       .join('')
     root.innerHTML = `
       <main class="card answers">
