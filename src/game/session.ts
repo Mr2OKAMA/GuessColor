@@ -14,6 +14,7 @@ export class GameSession {
   maxCombo = 0
   question!: Question
 
+  private pool1: Question[]
   private pool2: Question[]
   private pool3: Question[]
   private used = new Set<number>()
@@ -24,6 +25,7 @@ export class GameSession {
   constructor(pokemons: Pokemon[], random: () => number = Math.random) {
     this.pokemons = pokemons
     this.random = random
+    this.pool1 = buildQuestionPool(pokemons, 1)
     this.pool2 = buildQuestionPool(pokemons, 2)
     this.pool3 = buildQuestionPool(pokemons, 3)
   }
@@ -77,8 +79,9 @@ export class GameSession {
   }
 
   private nextQuestion(): void {
-    const useThree = this.combo >= CONFIG.threeColorCombo && this.pool3.length > 0
-    const pool = useThree || this.pool2.length === 0 ? this.pool3 : this.pool2
+    const three = this.combo > 0 && this.combo % CONFIG.threeColorEvery === 0
+    const preferred = three ? this.pool3 : this.random() < CONFIG.oneColorRate ? this.pool1 : this.pool2
+    const pool = preferred.length > 0 ? preferred : [this.pool2, this.pool1, this.pool3].find((p) => p.length > 0)!
     this.question = pickQuestion(pool, this.question, this.random)
   }
 }

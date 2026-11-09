@@ -3,6 +3,8 @@ export const CONFIG = {
   passPenaltySec: 1,
   scorePerCorrect: 100,
   comboBonus: 10,
-  // このコンボ数以上で3色問題が出る
-  threeColorCombo: 5,
+  // 通常時に1色問題が出る確率（残りは2色）
+  oneColorRate: 0.75,
+  // このコンボ数ごとに3色問題が出る
+  threeColorEvery: 10,
 } as const

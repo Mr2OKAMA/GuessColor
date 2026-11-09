@@ -117,7 +117,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
           <li>正解すると残り時間が <strong>${CONFIG.initialTimeSec}秒まで回復</strong>します。</li>
           <li>パスは <strong>-${CONFIG.passPenaltySec}秒</strong>でコンボが途切れます。</li>
           <li>不正解にペナルティはありません。</li>
-          <li>${CONFIG.threeColorCombo}コンボ以上で3色の問題が出ます。</li>
+          <li>基本は1色(${CONFIG.oneColorRate * 100}%)か2色の問題で、${CONFIG.threeColorEvery}コンボごとに3色の問題が出ます。</li>
           <li>同じポケモンは1回しか使えません。</li>
         </ol>
         <p class="hint">初期時間は ${CONFIG.initialTimeSec} 秒です。</p>
@@ -170,7 +170,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
     document.getElementById('score')!.textContent = String(session.score)
     const combo = document.getElementById('combo')!
     combo.textContent = String(session.combo)
-    combo.parentElement!.classList.toggle('hot', session.combo >= CONFIG.threeColorCombo)
+    combo.parentElement!.classList.toggle('hot', session.combo > 0 && session.combo % CONFIG.threeColorEvery === 0)
     document.getElementById('chips')!.innerHTML = chipsHtml(session.question.colors)
   }
 
