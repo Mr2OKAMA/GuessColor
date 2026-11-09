@@ -311,3 +311,13 @@ input {
     font-size: 1rem;
   }
 }
+
+.answer-list {
+  list-style: none;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 8px 0;
+  padding: 6px;
+  text-align: left;
+  line-height: 2;
+}
