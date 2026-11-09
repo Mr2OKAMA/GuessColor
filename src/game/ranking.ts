@@ -17,11 +17,10 @@ export function rankingEnabled(): boolean {
 }
 
 function headers(): Record<string, string> {
-  return {
-    apikey: ANON_KEY!,
-    Authorization: `Bearer ${ANON_KEY}`,
-    'Content-Type': 'application/json',
-  }
+  const h: Record<string, string> = { apikey: ANON_KEY!, 'Content-Type': 'application/json' }
+  // 新形式の publishable キー(sb_...)は JWT ではないため Authorization に付けない
+  if (!ANON_KEY!.startsWith('sb_')) h.Authorization = `Bearer ${ANON_KEY}`
+  return h
 }
 
 export function getPlayerId(): string {
@@ -73,7 +72,7 @@ export async function submitScore(name: string, score: number, correct: number, 
     headers: { ...headers(), Prefer: 'return=minimal' },
     body: JSON.stringify({ player_id: getPlayerId(), name, score, correct, max_combo: maxCombo }),
   })
-  if (!res.ok) throw new Error(`submit failed: ${res.status}`)
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 120)}`)
 }
 
 export async function fetchRanking(limit = 10): Promise<RankEntry[]> {
