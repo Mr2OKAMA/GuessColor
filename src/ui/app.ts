@@ -365,8 +365,8 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
           await submitScore(name, session.score, session.correctCount, session.maxCombo)
           msg.textContent = '登録しました！'
           sb.textContent = '登録済み'
-        } catch {
-          msg.textContent = '登録に失敗しました。もう一度お試しください'
+        } catch (e) {
+          msg.textContent = `登録に失敗しました (${e instanceof Error ? e.message : 'error'})`
           sb.disabled = false
         }
       }
