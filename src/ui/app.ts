@@ -128,10 +128,12 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function renderAnswers(): void {
     const rows = pokemons
-      .map(
-        (p) =>
-          `<li><span class="no">${p.id}</span><span class="name">${p.name}</span><div class="chips">${chipsHtml(p.colors)}</div></li>`,
-      )
+      .map((p) => {
+        const shiny = p.shinyColors
+          ? `<div class="chips shiny"><span class="star" title="色違い">✨</span>${chipsHtml(p.shinyColors)}</div>`
+          : ''
+        return `<li><span class="no">${p.dex ?? p.id}</span><span class="name">${p.name}</span><div class="cols"><div class="chips">${chipsHtml(p.colors)}</div>${shiny}</div></li>`
+      })
       .join('')
     root.innerHTML = `
       <main class="card answers">

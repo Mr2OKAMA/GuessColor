@@ -1,7 +1,7 @@
 import type { Color, Pokemon, Question } from './types'
 
 export function matches(pokemon: Pokemon, colors: Color[]): boolean {
-  return colors.every((c) => pokemon.colors.includes(c))
+  return [pokemon.colors, pokemon.shinyColors ?? []].some((set) => colors.every((c) => set.includes(c)))
 }
 
 export function answersFor(pokemons: Pokemon[], colors: Color[]): Pokemon[] {
@@ -21,7 +21,7 @@ function combinations<T>(items: T[], size: number): T[][] {
 
 // 該当ポケモンが1匹以上いる色の組み合わせだけを返す
 export function buildQuestionPool(pokemons: Pokemon[], colorCount: 2 | 3): Question[] {
-  const allColors = [...new Set(pokemons.flatMap((p) => p.colors))].sort()
+  const allColors = [...new Set(pokemons.flatMap((p) => [...p.colors, ...(p.shinyColors ?? [])]))].sort()
   return combinations(allColors, colorCount)
     .filter((colors) => pokemons.some((p) => matches(p, colors)))
     .map((colors) => ({ colors }))

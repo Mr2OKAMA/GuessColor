@@ -7,7 +7,7 @@ export const KANA_GRID: string[][] = [
   ['オ', 'コ', 'ソ', 'ト', 'ノ', 'ホ', 'モ', 'ヨ', 'ロ', 'ヲ'],
 ]
 
-export const EXTRA_KEYS = ['ン', 'ー', '゛', '゜', '小', '・', '♀', '♂', '2', 'Z']
+export const EXTRA_KEYS = ['ン', 'ー', '゛', '゜', '小', '・', '♀', '♂', '2', 'X', 'Y', 'Z']
 
 const DAKUTEN = '\u3099'
 const HANDAKUTEN = '\u309a'

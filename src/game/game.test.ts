@@ -97,3 +97,25 @@ describe('suggest', () => {
     expect(r.total).toBe(2)
   })
 })
+
+describe('色違い', () => {
+  const pokes: Pokemon[] = [
+    { id: 1, name: 'ライチュウ', colors: ['黄', 'オレンジ'], shinyColors: ['茶', '白'] },
+    { id: 2, name: 'ピジョン', colors: ['茶', '赤'] },
+  ]
+
+  it('通常色でも色違いの色でも、同じ名前が正解になる', () => {
+    expect(answersFor(pokes, ['黄', 'オレンジ']).map((p) => p.name)).toEqual(['ライチュウ'])
+    expect(answersFor(pokes, ['茶', '白']).map((p) => p.name)).toEqual(['ライチュウ'])
+  })
+
+  it('通常色と色違いの色を混ぜた組み合わせは正解にならない', () => {
+    expect(answersFor(pokes, ['黄', '白'])).toEqual([])
+  })
+
+  it('色違いの色も出題プールに含まれる', () => {
+    const pool = buildQuestionPool(pokes, 2).map((q) => q.colors.join('+'))
+    expect(pool).toContain('白+茶')
+    expect(pool).not.toContain('白+黄')
+  })
+})
