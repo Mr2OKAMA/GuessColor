@@ -316,8 +316,38 @@ input {
   list-style: none;
   max-height: 60vh;
   overflow-y: auto;
-  margin: 8px 0;
-  padding: 6px;
+  margin: 12px 0;
+  padding: 0;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #fafafa;
   text-align: left;
-  line-height: 2;
+  -webkit-overflow-scrolling: touch;
+}
+
+.answer-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  flex-wrap: nowrap;
+}
+
+.answer-list li:last-child {
+  border-bottom: none;
+}
+
+.answer-list li strong {
+  flex: 0 0 7.5em;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.answer-list .chip {
+  padding: 3px 9px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  animation: none;
+  flex: 0 0 auto;
 }
