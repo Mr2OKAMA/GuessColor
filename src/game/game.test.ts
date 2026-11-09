@@ -37,9 +37,10 @@ describe('GameSession', () => {
     const before = s.timeLeftSec
     expect(s.answer('ぜんぜんちがう')).toBe('wrong')
     expect(s.timeLeftSec).toBe(before)
+    s.tick(20)
     const name = answersFor(data, s.question.colors)[0].name
     expect(s.answer(name)).toBe('correct')
-    expect(s.timeLeftSec).toBeGreaterThan(before)
+    expect(s.timeLeftSec).toBe(before)
     expect(s.score).toBeGreaterThan(0)
   })
 

@@ -60,7 +60,7 @@ export class GameSession {
     this.combo++
     this.maxCombo = Math.max(this.maxCombo, this.combo)
     this.score += CONFIG.scorePerCorrect + (this.combo - 1) * CONFIG.comboBonus
-    this.timeLeftSec += CONFIG.correctBonusSec
+    this.timeLeftSec = CONFIG.initialTimeSec
     this.nextQuestion()
     return 'correct'
   }

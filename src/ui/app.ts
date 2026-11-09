@@ -109,7 +109,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <h2>あそびかた</h2>
         <ol>
           <li>表示された色をすべて持つポケモンの名前を入力します。</li>
-          <li>正解すると残り時間が <strong>+${CONFIG.correctBonusSec}秒</strong>。</li>
+          <li>正解すると残り時間が <strong>${CONFIG.initialTimeSec}秒まで回復</strong>します。</li>
           <li>パスは <strong>-${CONFIG.passPenaltySec}秒</strong>でコンボが途切れます。</li>
           <li>不正解にペナルティはありません。</li>
           <li>${CONFIG.threeColorCombo}コンボ以上で3色の問題が出ます。</li>
@@ -162,7 +162,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function showFeedback(kind: 'correct' | 'wrong' | 'duplicate' | 'pass'): void {
     const text = {
-      correct: `正解！ +${CONFIG.correctBonusSec}秒`,
+      correct: `正解！ 時間回復`,
       wrong: '違います',
       duplicate: '回答済みです',
       pass: `パス -${CONFIG.passPenaltySec}秒`,
