@@ -118,6 +118,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
           <li>パスは <strong>-${CONFIG.passPenaltySec}秒</strong>でコンボが途切れます。</li>
           <li>不正解にペナルティはありません。</li>
           <li>基本は1色(${CONFIG.oneColorRate * 100}%)か2色の問題で、${CONFIG.threeColorEvery}コンボごとに3色の問題が出ます。</li>
+          <li>得点は <strong>1色×1・2色×${CONFIG.colorCountMultiplier[2]}・3色×${CONFIG.colorCountMultiplier[3]}</strong>。コンボが続くほど基本点が増えます。</li>
           <li>同じポケモンは1回しか使えません。</li>
         </ol>
         <p class="hint">初期時間は ${CONFIG.initialTimeSec} 秒です。</p>
@@ -185,7 +186,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
 
   function showFeedback(kind: 'correct' | 'wrong' | 'duplicate' | 'pass'): void {
     const text = {
-      correct: `正解！ 時間回復`,
+      correct: `正解！ +${session.lastGain}点`,
       wrong: '違います',
       duplicate: '回答済みです',
       pass: `パス -${CONFIG.passPenaltySec}秒`,

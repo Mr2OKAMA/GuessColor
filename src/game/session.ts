@@ -13,6 +13,7 @@ export class GameSession {
   combo = 0
   maxCombo = 0
   question!: Question
+  lastGain = 0
 
   private pool1: Question[]
   private pool2: Question[]
@@ -61,7 +62,9 @@ export class GameSession {
     this.correctCount++
     this.combo++
     this.maxCombo = Math.max(this.maxCombo, this.combo)
-    this.score += CONFIG.scorePerCorrect + (this.combo - 1) * CONFIG.comboBonus
+    const multiplier = CONFIG.colorCountMultiplier[this.question.colors.length] ?? 1
+    this.lastGain = (CONFIG.scorePerCorrect + (this.combo - 1) * CONFIG.comboBonus) * multiplier
+    this.score += this.lastGain
     this.timeLeftSec = CONFIG.initialTimeSec
     this.nextQuestion()
     return 'correct'
