@@ -201,3 +201,16 @@ describe('色数による得点倍率', () => {
     expect(s.lastGain).toBe((100 + 9 * 10) * 10)
   })
 })
+
+describe('ランキング', () => {
+  it('ユーザーごとの最高スコアのみ残して降順に並べる', async () => {
+    const { bestPerPlayer } = await import('./ranking')
+    const rows = [
+      { player_id: 'a', name: 'A', score: 100 },
+      { player_id: 'b', name: 'B', score: 300 },
+      { player_id: 'a', name: 'A', score: 500 },
+    ]
+    expect(bestPerPlayer(rows, 10).map((r) => r.score)).toEqual([500, 300])
+    expect(bestPerPlayer(rows, 1)).toHaveLength(1)
+  })
+})

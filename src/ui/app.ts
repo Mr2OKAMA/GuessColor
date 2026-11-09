@@ -1,3 +1,4 @@
+import { rankingEnabled, fetchRanking, submitScore, getPlayerId, getPlayerName, savePlayerName, cleanName, MAX_NAME_LENGTH } from '../game/ranking'
 import { CONFIG } from '../game/config'
 import { backspace, EXTRA_KEYS, KANA_GRID, pressKey } from '../game/kana'
 import { GameSession } from '../game/session'
@@ -38,6 +39,10 @@ function saveBest(score: number): void {
   } catch {
     // 保存できない環境では無視する
   }
+}
+
+function escapeHtml(t: string): string {
+  return t.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 }
 
 function chipsHtml(colors: string[]): string {
@@ -101,11 +106,40 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <button id="start" class="primary">スタート</button>
         <button id="how" class="sub">あそびかた</button>
         <button id="answers" class="sub">答え一覧</button>
+        ${rankingEnabled() ? '<button id="ranking" class="sub">ランキング</button>' : ''}
         <p class="note">非公式のファンメイド作品です。画像は使用していません。</p>
       </main>`
     document.getElementById('start')!.onclick = startGame
     document.getElementById('how')!.onclick = renderHowTo
     document.getElementById('answers')!.onclick = renderAnswers
+    const rk = document.getElementById('ranking')
+    if (rk) rk.onclick = renderRanking
+  }
+
+  function renderRanking(): void {
+    root.innerHTML = `
+      <main class="card ranking">
+        <h1>ランキング</h1>
+        <ol id="rank-list" class="rank-list"><li>読み込み中…</li></ol>
+        <button id="back" class="sub">戻る</button>
+      </main>`
+    document.getElementById('back')!.onclick = renderMenu
+    const list = document.getElementById('rank-list')!
+    fetchRanking(10)
+      .then((rows) => {
+        const me = getPlayerId()
+        list.innerHTML = rows.length
+          ? rows
+              .map(
+                (r, i) =>
+                  `<li class="${r.player_id === me ? 'me' : ''}"><span class="pos">${i + 1}</span><span class="nm">${escapeHtml(r.name)}</span><span class="sc">${r.score}点</span></li>`,
+              )
+              .join('')
+          : '<li>まだ記録がありません</li>'
+      })
+      .catch(() => {
+        list.innerHTML = '<li>ランキングを取得できませんでした</li>'
+      })
   }
 
   function renderHowTo(): void {
@@ -305,11 +339,38 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <p class="big">${session.score} 点</p>
         ${isNew ? '<p class="newbest">ハイスコア更新！</p>' : `<p class="best">ハイスコア ${best} 点</p>`}
         <p>正解数 ${session.correctCount} / 最大コンボ ${session.maxCombo}</p>
+        ${
+          rankingEnabled() && session.score > 0
+            ? `<div class="submit-box">
+          <input id="pname" maxlength="${MAX_NAME_LENGTH}" placeholder="なまえ" value="${escapeHtml(getPlayerName())}" />
+          <button id="submit-score" class="sub">ランキングに登録</button>
+          <p id="submit-msg" class="note"></p>
+        </div>`
+            : ''
+        }
         <button id="retry" class="primary">もう一度</button>
         <button id="menu" class="sub">メニューへ</button>
       </main>`
     document.getElementById('retry')!.onclick = startGame
     document.getElementById('menu')!.onclick = renderMenu
+    const sb = document.getElementById('submit-score') as HTMLButtonElement | null
+    if (sb) {
+      sb.onclick = async () => {
+        const msg = document.getElementById('submit-msg')!
+        const name = cleanName((document.getElementById('pname') as HTMLInputElement).value)
+        savePlayerName(name)
+        sb.disabled = true
+        msg.textContent = '送信中…'
+        try {
+          await submitScore(name, session.score, session.correctCount, session.maxCombo)
+          msg.textContent = '登録しました！'
+          sb.textContent = '登録済み'
+        } catch {
+          msg.textContent = '登録に失敗しました。もう一度お試しください'
+          sb.disabled = false
+        }
+      }
+    }
   }
 
   renderMenu()
