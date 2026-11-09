@@ -168,3 +168,32 @@ describe('出題の色数', () => {
     expect(s.question.colors).toHaveLength(1)
   })
 })
+
+describe('色数による得点倍率', () => {
+  const pokes: Pokemon[] = [
+    { id: 1, name: 'アア', colors: ['赤', '青', '黄'] },
+    { id: 2, name: 'イイ', colors: ['赤', '青', '黄'] },
+  ]
+
+  function scoreAfterFirstAnswer(random: number): number {
+    const s = new GameSession(pokes, () => random)
+    s.start()
+    s.answer(answersFor(pokes, s.question.colors)[0].name)
+    return s.score
+  }
+
+  it('1色は×1、2色は×5', () => {
+    expect(scoreAfterFirstAnswer(0)).toBe(100)
+    expect(scoreAfterFirstAnswer(0.8)).toBe(500)
+  })
+
+  it('3色は×10、コンボ加点にも倍率がかかる', () => {
+    const s = new GameSession(pokes, () => 0)
+    s.start()
+    const names = ['アア', 'イイ']
+    s.combo = 9
+    s.question = { colors: ['赤', '青', '黄'] }
+    expect(s.answer(names[0])).toBe('correct')
+    expect(s.lastGain).toBe((100 + 9 * 10) * 10)
+  })
+})
