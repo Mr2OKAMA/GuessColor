@@ -114,7 +114,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
         <h2>あそびかた</h2>
         <ol>
           <li>表示された色をすべて持つポケモンの名前を入力します。</li>
-          <li>正解すると残り時間が <strong>${CONFIG.initialTimeSec}秒まで回復</strong>します。</li>
+          <li>正解すると残り時間が <strong>${CONFIG.correctBonusSec}秒増加</strong>します（最大 ${CONFIG.maxTimeSec} 秒まで）。</li>
           <li>パスは <strong>-${CONFIG.passPenaltySec}秒</strong>でコンボが途切れます。</li>
           <li>不正解にペナルティはありません。</li>
           <li>基本は1色(${CONFIG.oneColorRate * 100}%)か2色の問題で、${CONFIG.threeColorEvery}コンボごとに3色の問題が出ます。</li>
@@ -162,7 +162,7 @@ export function mountApp(root: HTMLElement, pokemons: Pokemon[]): void {
     const bar = document.getElementById('bar')
     if (text) text.textContent = t.toFixed(1)
     if (bar) {
-      bar.style.width = `${Math.min(1, t / CONFIG.initialTimeSec) * 100}%`
+      bar.style.width = `${Math.min(1, t / CONFIG.maxTimeSec) * 100}%`
       bar.classList.toggle('low', t <= 10)
     }
   }

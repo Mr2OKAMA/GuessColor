@@ -40,7 +40,11 @@ describe('GameSession', () => {
     s.tick(20)
     const name = answersFor(data, s.question.colors)[0].name
     expect(s.answer(name)).toBe('correct')
-    expect(s.timeLeftSec).toBe(before)
+    expect(s.timeLeftSec).toBe(before - 20 + 30)
+    s.timeLeftSec = 170
+    const next = answersFor(data, s.question.colors)[0].name
+    expect(s.answer(next)).toBe("correct")
+    expect(s.timeLeftSec).toBe(180)
     expect(s.score).toBeGreaterThan(0)
   })
 

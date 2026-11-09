@@ -1,5 +1,7 @@
 export const CONFIG = {
-  initialTimeSec: 30,
+  initialTimeSec: 60,
+  correctBonusSec: 30,
+  maxTimeSec: 180,
   passPenaltySec: 1,
   scorePerCorrect: 100,
   comboBonus: 10,

@@ -65,7 +65,7 @@ export class GameSession {
     const multiplier = CONFIG.colorCountMultiplier[this.question.colors.length] ?? 1
     this.lastGain = (CONFIG.scorePerCorrect + (this.combo - 1) * CONFIG.comboBonus) * multiplier
     this.score += this.lastGain
-    this.timeLeftSec = CONFIG.initialTimeSec
+    this.timeLeftSec = Math.min(CONFIG.maxTimeSec, this.timeLeftSec + CONFIG.correctBonusSec)
     this.nextQuestion()
     return 'correct'
   }
