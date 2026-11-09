@@ -361,3 +361,18 @@ input {
   color: #222;
   text-shadow: none;
 }
+
+.answer-list .cols {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.answer-list .shiny {
+  align-items: center;
+}
+
+.answer-list .star {
+  font-size: 0.75rem;
+}
