@@ -29,3 +29,6 @@ npm run build   # ビルド
 
 ## 公開
 `main` への push で GitHub Pages にデプロイされます（Settings > Pages > Source を GitHub Actions に設定）。
+## ランキング（任意）
+
+Supabase の無料枠でユーザーごとのオンラインランキングを有効化できます。手順は [docs/ranking-setup.md](docs/ranking-setup.md) を参照。環境変数が未設定の場合、ランキング機能は表示されません。

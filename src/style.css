@@ -376,3 +376,11 @@ input {
 .answer-list .star {
   font-size: 0.75rem;
 }
+
+.rank-list { list-style: none; margin: 0 0 12px; padding: 0; }
+.rank-list li { display: flex; gap: 10px; padding: 8px 6px; border-bottom: 1px solid #ddd; align-items: center; }
+.rank-list li.me { background: #fff3c4; font-weight: bold; }
+.rank-list .pos { width: 1.6em; text-align: center; }
+.rank-list .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.submit-box { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.submit-box input { font-size: 16px; padding: 8px; border: 1px solid #bbb; border-radius: 8px; }
